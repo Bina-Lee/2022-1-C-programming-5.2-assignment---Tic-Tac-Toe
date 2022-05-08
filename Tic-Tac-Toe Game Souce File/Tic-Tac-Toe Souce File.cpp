@@ -1163,7 +1163,439 @@ void play_nbyn_with_computer_easy(void) {
 	printf("게임을 종료합니다\n\n");
 }
 //6. 칸수지정 외 2와 동일
+void play_nbyn_with_computer_hard(void) {
 
+	char whoisfirst = 'n';
+	printf("누가 먼저 시작할건가요?\nHuman or Computer?(h/c)\n");
+	scanf(" %c", &whoisfirst);
+	while (!((whoisfirst == 'h') || (whoisfirst == 'c'))) {
+		printf("잘못된 입력입니다\n다시 입력해주세요\n");
+		scanf(" %c", &whoisfirst);
+	}
+
+	int vec = 3;
+	printf("몇 칸으로 게임을 할지 입력해주세요 : ");
+	scanf("%d", &vec);
+	while (vec < 3 || vec >= 100) {
+		printf("범위 외의 칸수입니다\n3이상 100미만의 숫자를 입력해 주세요");
+		scanf("%d", &vec);
+	}
+	printf("게임을 시작합니다\n");
+	printf("Good Luck\n\n");
+
+	char game[99][99];					//좌표계 생성
+
+	for (int i = 0; i < vec; i++) {
+		for (int j = 0; j < vec; j++) {
+			game[i][j] = ' ';
+		}
+	}									//초기화
+
+	int x, y;
+	char mark;
+
+	char checkwinner = 'n';//none,human,computer 코드복사/무시
+	for (int i = 1; i <= vec * vec; i++) {			//게임시작
+														//사람 직접 입력
+		int whoschance;
+		switch (whoisfirst) {
+		case 'h':whoschance = i % 2; break;
+		case 'c':whoschance = (i + 1) % 2; break;
+		}
+
+		mark = (whoschance == 0) ? 'X' : 'O';
+		//OX입력순서 지정 및 입력
+
+		switch (whoschance) {
+		case 1:
+			printf("좌표를 입력해 주세요\n");
+			scanf("%d %d", &y, &x);
+			while (x < 0 || x >= vec || y < 0 || y >= vec || game[y][x] != ' ') {
+				if (x < 0 || x >= vec || y < 0 || y >= vec) {
+					printf("범위 외의 좌표입니다\n다른 좌표를 입력해주세요\n");
+					scanf("%d %d", &y, &x);
+					continue;
+				}
+				if (game[y][x] != ' ') {
+					printf("이미 선택한 좌표입니다\n다른 좌표를 입력해주세요\n");
+					scanf("%d %d", &y, &x);
+					continue;
+				}
+			}
+			break;
+		case 0:
+			int checksum1 = 0;
+			int checksum2 = 0;
+			int check = 0;
+			int checkx = 0;
+			int checky = 0;
+
+			for (int i = 0; i < vec; i++) {
+				checksum1 = 0;
+				checksum2 = 0;
+				for (int j = 0; j < vec; j++) {
+					checksum1 = checksum1 + game[i][j];
+					checksum2 = checksum2 + game[j][i];
+				}
+				if (checksum1 == 88 * (vec - 1) + 32) {
+					check = 1;
+					checky = i;
+					break;
+				}
+				else if (checksum2 == 88 * (vec - 1) + 32) {
+					check = 2;
+					checkx = i;
+					break;
+				}
+			}
+			if (check == 1) {
+				for (int j = 0; j < vec; j++) {
+					if (game[checky][j] == 32) {
+						game[checky][j] = 88;
+						break;
+					}
+				}
+				break;
+			}
+			else if (check == 2) {
+				for (int j = 0; j < vec; j++) {
+					if (game[j][checkx] == 32) {
+						game[j][checkx] = 88;
+						break;
+					}
+				}
+				break;
+			}						// 가로세로로 컴퓨터가 끝내기 직전인 줄이 있는지 검사
+									// 컴퓨터가 끝내기 직전인 줄이 있으면 게임 종료
+
+			checksum1 = 0;
+			checksum2 = 0;
+			for (int i = 0; i < vec; i++) {
+				checksum1 = checksum1 + game[i][i];
+				checksum2 = checksum2 + game[i][vec - i - 1];
+			}
+			if (checksum1 == 88 * (vec - 1) + 32) {
+				check = 1;
+				checky = i;
+				break;
+			}
+			else if (checksum2 == 88 * (vec - 1) + 32) {
+				check = 2;
+				checky = i;
+				break;
+			}
+			if (check == 1) {
+				game[checky][checky] = 88;
+				break;
+			}
+			else if (check == 2) {
+				game[checky][vec - checky - 1] = 88;
+				break;
+			}						//대각선에서 컴퓨터가 끝내기 직전인 줄이 있는지 검사
+									//컴퓨터가 끝낼수 있는 줄이 있으면 게임 종료
+
+			for (int i = 0; i < vec; i++) {
+				checksum1 = 0;
+				checksum2 = 0;
+				for (int j = 0; j < vec; j++) {
+					checksum1 = checksum1 + game[i][j];
+					checksum2 = checksum2 + game[j][i];
+				}
+				if (checksum1 == 79 * (vec - 1) + 32) {
+					check = 1;
+					checky = i;
+					break;
+				}
+				else if (checksum2 == 79 * (vec - 1) + 32) {
+					check = 2;
+					checkx = i;
+					break;
+				}
+			}
+			if (check == 1) {
+				for (int j = 0; j < vec; j++) {
+					if (game[checky][j] == 32) {
+						game[checky][j] = 88;
+						break;
+					}
+				}
+				break;
+			}
+			else if (check == 2) {
+				for (int j = 0; j < vec; j++) {
+					if (game[j][checkx] == 32) {
+						game[j][checkx] = 88;
+						break;
+					}
+				}
+				break;
+			}						// 가로세로로 사람이 끝내기 직전인 줄이 있는지 검사
+									// 사람이 끝내기 직전인 줄이 있으면 방어
+
+			checksum1 = 0;
+			checksum2 = 0;
+			for (int i = 0; i < vec; i++) {
+				checksum1 = checksum1 + game[i][i];
+				checksum2 = checksum2 + game[i][vec - i - 1];
+			}
+			if (checksum1 == 79 * (vec - 1) + 32) {
+				check = 1;
+				checky = i;
+				break;
+			}
+			else if (checksum2 == 79 * (vec - 1) + 32) {
+				check = 2;
+				checky = i;
+				break;
+			}
+			if (check == 1) {
+				game[checky][checky] = 88;
+				break;
+			}
+			else if (check == 2) {
+				game[checky][vec - checky - 1] = 88;
+				break;
+			}						//대각선에서 사람이 끝내기 직전인 줄이 있는지 검사
+									//사람이 끝낼수 있는 줄이 있으면 방어
+
+			for (int i = 0; i < vec; i++) {
+				checksum1 = 0;
+				checksum2 = 0;
+				for (int j = 0; j < vec; j++) {
+					checksum1 = checksum1 + game[i][j];
+					checksum2 = checksum2 + game[j][i];
+				}
+				if (checksum1 == 88 * (vec - 2) + 32 * 2) {
+					check = 1;
+					checky = i;
+					break;
+				}
+				else if (checksum2 == 88 * (vec - 2) + 32 * 2) {
+					check = 2;
+					checkx = i;
+					break;
+				}
+			}
+			if (check == 1) {
+				for (int j = 0; j < vec; j++) {
+					if (game[checky][j] == 32) {
+						game[checky][j] = 88;
+						break;
+					}
+				}
+				break;
+			}
+			else if (check == 2) {
+				for (int j = 0; j < vec; j++) {
+					if (game[j][checkx] == 32) {
+						game[j][checkx] = 88;
+						break;
+					}
+				}
+				break;
+			}						// 가로세로로 컴퓨터가 2개 더 넣으면 끝나는 줄이 있는지 검사
+									// 해당되면 하나 채워넣음
+
+			checksum1 = 0;
+			checksum2 = 0;
+			for (int i = 0; i < vec; i++) {
+				checksum1 = checksum1 + game[i][i];
+				checksum2 = checksum2 + game[i][vec - i - 1];
+			}
+			if (checksum1 == 88 * (vec - 2) + 32 * 2) {
+				check = 1;
+				checky = i;
+				break;
+			}
+			else if (checksum2 == 88 * (vec - 2) + 32 * 2) {
+				check = 2;
+				checky = i;
+				break;
+			}
+			if (check == 1) {
+				game[checky][checky] = 88;
+				break;
+			}
+			else if (check == 2) {
+				game[checky][vec - checky - 1] = 88;
+				break;
+			}						// 대각선에서 컴퓨터가 2개 더 넣으면 끝나는 줄이 있는지 검사
+									// 해당되면 하나 채워넣음
+
+			for (int i = 0; i < vec; i++) {
+				checksum1 = 0;
+				checksum2 = 0;
+				for (int j = 0; j < vec; j++) {
+					checksum1 = checksum1 + game[i][j];
+					checksum2 = checksum2 + game[j][i];
+				}
+				if (checksum1 == 79 * (vec - 2) + 32 * 2) {
+					check = 1;
+					checky = i;
+					break;
+				}
+				else if (checksum2 == 79 * (vec - 2) + 32 * 2) {
+					check = 2;
+					checkx = i;
+					break;
+				}
+			}
+			if (check == 1) {
+				for (int j = 0; j < vec; j++) {
+					if (game[checky][j] == 32) {
+						game[checky][j] = 88;
+						break;
+					}
+				}
+				break;
+			}
+			else if (check == 2) {
+				for (int j = 0; j < vec; j++) {
+					if (game[j][checkx] == 32) {
+						game[j][checkx] = 88;
+						break;
+					}
+				}
+				break;
+			}						// 가로세로로 사람이 두개 더 넣으면 끝나는 줄이 있는지 검사
+									// 해당되면 방어
+
+			checksum1 = 0;
+			checksum2 = 0;
+			for (int i = 0; i < vec; i++) {
+				checksum1 = checksum1 + game[i][i];
+				checksum2 = checksum2 + game[i][vec - i - 1];
+			}
+			if (checksum1 == 79 * (vec - 2) + 32 * 2) {
+				check = 1;
+				checky = i;
+				break;
+			}
+			else if (checksum2 == 79 * (vec - 2) + 32 * 2) {
+				check = 2;
+				checky = i;
+				break;
+			}
+			if (check == 1) {
+				game[checky][checky] = 88;
+				break;
+			}
+			else if (check == 2) {
+				game[checky][vec - checky - 1] = 88;
+				break;
+			}						// 대각선에서 사람이 두개 더 넣으면 끝나는 줄이 있는지 검사
+									// 해당되면 방어
+
+
+
+
+			///////////////////////////////////////////////////////////////////
+		}
+
+		game[y][x] = mark;
+
+		{
+			printf("\n   ");
+			for (int i = 0; i < vec; i++) printf(" %2d  ", i);
+			printf("\n");
+			for (int i = 0; i < vec; i++) {
+				printf("  |");
+				for (int j = 0; j < vec; j++) {
+					printf("----|");
+				}
+				printf("\n");
+				printf("%2d|", i);
+				for (int j = 0; j < vec; j++) {
+					printf("  %c |", game[i][j]);
+				}
+				printf("\n");
+			}
+			printf("  |");
+			for (int j = 0; j < vec; j++) {
+				printf("----|");
+			}
+			printf("\n");
+		}					//현재 진행상황 출력
+
+		{
+			for (int i = 0; i < vec; i++) {
+				int checkvec = 0;
+				{
+					for (int j = 0; j < vec; j++) {
+						checkvec = checkvec + game[i][j];
+					}
+					if (checkvec == 88 * vec) {
+						checkwinner = 'c';
+						break;
+					}
+					else if (checkvec == 79 * vec) {
+						checkwinner = 'h';
+						break;
+					}
+				}
+				{
+					checkvec = 0;
+					for (int j = 0; j < vec; j++) {
+						checkvec = checkvec + game[j][i];
+					}
+					if (checkvec == 88 * vec) {
+						checkwinner = 'c';
+						break;
+					}
+					else if (checkvec == 79 * vec) {
+						checkwinner = 'h';
+						break;
+					}
+				}
+			}				// 가로세로 중에 채워진 줄이 있는지 확인
+			if (checkwinner == 'n') {
+				int checkvec = 0;
+				for (int i = 0; i < vec; i++) {
+					checkvec = checkvec + game[i][i];
+				}
+				if (checkvec == 88 * vec) {
+					checkwinner = 'c';
+					break;
+				}
+				else if (checkvec == 79 * vec) {
+					checkwinner = 'h';
+					break;
+				}
+			}				// \방향이 채워졌는지 확인
+			if (checkwinner == 'n') {
+				int checkvec = 0;
+				for (int i = 0; i < vec; i++) {
+					checkvec = checkvec + game[i][vec - 1 - i];
+				}
+				if (checkvec == 88 * vec) {
+					checkwinner = 'c';
+					break;
+				}
+				else if (checkvec == 79 * vec) {
+					checkwinner = 'h';
+					break;
+				}
+			}				// /방향이 채워졌는지 확인
+		}														//승패결정
+		if (checkwinner != 'n') break;
+	}									//게임종료
+	switch (checkwinner) {
+	case 'n':
+		printf("이번 게임은 무승부 입니다\n");
+		none++;
+		break;
+	case 'h':
+		printf("참여자가 이겼습니다\n");
+		win++;
+		break;
+	case 'c':
+		printf("컴퓨터가 이겼습니\n");
+		lose++;
+		break;
+	}
+	printf("게임을 종료합니다\n\n");
+}
+//7. 칸수지정, 사람 승률 0%목표로 제작
 void cording_record(void) {
 	printf("-------------------------------------------------\n");
 	printf("2022 05 02 Mon : 과제 최초 제시\n");
@@ -1212,9 +1644,10 @@ int main() {
 		printf(" 5. 두명이서 칸수지정 플레이(사용자가 입력한 칸으로 게임을 진행합니다/99*99칸까지 지원합니다)\n");
 		//번갈아가면서 지정한 칸수로 플레이
 		printf(" 6. 컴퓨터와 칸수지정 플레이(99*99칸까지 지원합니다)\n");
+		printf(" 7. (제작중)컴퓨터와 칸수지정 플레이(난이도 상/이길 수 있으면 이겨보세요\n");
 		printf("\n------------------\n");
-		printf("7. 게임 종료\n\n");
-		printf("8. 제작기록\n\n");
+		printf("8. 게임 종료\n\n");
+		printf("9. 제작기록\n\n");
 
 		int o;//option
 		scanf("%d", &o);
@@ -1229,13 +1662,15 @@ int main() {
 		case 2:play_with_computer_easy(); break;
 		case 3:play_with_computer_hard(); break;
 		case 4:printf("코드가 완성되지 않은 모드입니다\n메인페이지로 이동합니다\n\n"); break;
-			//play_with_computer_hardcore();
+			//play_with_computer_hardcore(); break;
 		case 5:play_nbyn_p2p(); break;
-		case 6:play_nbyn_with_computer_easy(); break;
-		case 8:cording_record(); break;
+		case 6:printf("코드가 완성되지 않은 모드입니다\n메인페이지로 이동합니다\n\n"); break;
+			//play_nbyn_with_computer_easy(); break;
+		case 7:play_nbyn_with_computer_hard(); break;
+		case 9:cording_record(); break;
 		default:break;
 		}
-		if (o == 7) {
+		if (o == 8) {
 			printf("게임을 종료합니다\n\n");
 			break;
 		}
